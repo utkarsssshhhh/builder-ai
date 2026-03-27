@@ -1,0 +1,31 @@
+import 'dotenv/config';
+import express, { type Express } from 'express';
+import cors from 'cors';
+import { chatRouter } from './routes/chat.js';
+import { errorHandler } from './middleware/errorHandler.js';
+
+const app: Express = express();
+const PORT = parseInt(process.env['PORT'] ?? '3001', 10);
+
+// ─── Middleware ──────────────────────────────────────────────────────────────
+app.use(cors({ origin: process.env['CORS_ORIGIN'] ?? 'http://localhost:5173' }));
+app.use(express.json({ limit: '10mb' }));
+
+// ─── Health Check ────────────────────────────────────────────────────────────
+app.get('/api/health', (_req, res) => {
+  res.json({ status: 'ok', timestamp: Date.now() });
+});
+
+// ─── Routes ──────────────────────────────────────────────────────────────────
+app.use('/api/chat', chatRouter);
+
+// ─── Error Handling ──────────────────────────────────────────────────────────
+app.use(errorHandler);
+
+// ─── Start Server ────────────────────────────────────────────────────────────
+app.listen(PORT, () => {
+  console.log(`🚀 Builder API running on http://localhost:${PORT}`);
+  console.log(`   Health: http://localhost:${PORT}/api/health`);
+});
+
+export default app;
