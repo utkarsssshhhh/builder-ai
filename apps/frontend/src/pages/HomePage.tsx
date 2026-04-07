@@ -6,15 +6,14 @@ export function HomePage() {
 
   return (
     <div className="home-page" id="home-page">
-      {/* Soft gradient background */}
+      {/* Rebalanced background to fix over-whiteness */}
       <div className="home-page__gradient-bg" />
 
       {/* Dark mode toggle */}
       <button className="home-page__theme-toggle" aria-label="Toggle theme">
-        <Moon size={18} />
+        <Moon size={18} fill="black" strokeWidth={2.5} />
       </button>
 
-      {/* Content */}
       <div className="home-page__content">
         <div className="home-page__hero">
           <h1 className="home-page__title">shadow</h1>
@@ -38,9 +37,9 @@ export function HomePage() {
             <span className="home-card__label">build</span>
           </button>
         </div>
-
-        <p className="home-page__footer">DESIGNED FOR CLARITY</p>
       </div>
+
+      <p className="home-page__footer">DESIGNED FOR CLARITY</p>
     </div>
   );
 }
