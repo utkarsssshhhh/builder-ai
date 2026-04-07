@@ -1,7 +1,7 @@
 import type { GeneratedFile } from '@builder/common';
 import { getLanguageFromPath } from '@builder/common';
 
-const API_BASE = '/https://vercel.com/utkarshs-projects-342187c0/builder-ai-backend/7yWNmt3gRucAEsAjBvt1ZsQWmKHk';
+const API_BASE = '/https://builder-ai-backend.vercel.app/';
 
 interface StreamCallbacks {
   onChunk: (text: string) => void;
