@@ -39,7 +39,11 @@ function getMonacoLanguage(path: string): string {
   return map[ext] ?? 'plaintext';
 }
 
-export function EditorArea() {
+interface EditorAreaProps {
+  hideExplorer?: boolean;
+}
+
+export function EditorArea({ hideExplorer = false }: EditorAreaProps) {
   const files = useAppStore((s) => s.files);
   const activeFilePath = useAppStore((s) => s.activeFilePath);
   const openTabs = useAppStore((s) => s.openTabs);
@@ -101,34 +105,36 @@ export function EditorArea() {
       {/* Editor Content */}
       <div className="editor-content">
         {/* File Explorer Sidebar */}
-        <aside className="editor-content__sidebar" id="file-explorer">
-          <div className="file-explorer">
-            <div className="file-explorer__header">
-              <span className="file-explorer__title">Files</span>
-            </div>
-            {files.length === 0 ? (
-              <div style={{ padding: '12px 16px', fontSize: '0.75rem', color: 'var(--text-tertiary)' }}>
-                No files yet. Start a chat to generate code.
+        {!hideExplorer && (
+          <aside className="editor-content__sidebar" id="file-explorer">
+            <div className="file-explorer">
+              <div className="file-explorer__header">
+                <span className="file-explorer__title">Files</span>
               </div>
-            ) : (
-              files.map((file) => (
-                <div
-                  key={file.path}
-                  className={`file-tree__item ${file.path === activeFilePath ? 'file-tree__item--active' : ''}`}
-                  onClick={() => setActiveFile(file.path)}
-                  role="button"
-                  tabIndex={0}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter') setActiveFile(file.path);
-                  }}
-                >
-                  <span className="file-tree__icon">{getFileIcon(file.path)}</span>
-                  <span className="file-tree__name">{file.path}</span>
+              {files.length === 0 ? (
+                <div style={{ padding: '12px 16px', fontSize: '0.75rem', color: 'var(--text-tertiary)' }}>
+                  No files yet. Start a chat to generate code.
                 </div>
-              ))
-            )}
-          </div>
-        </aside>
+              ) : (
+                files.map((file) => (
+                  <div
+                    key={file.path}
+                    className={`file-tree__item ${file.path === activeFilePath ? 'file-tree__item--active' : ''}`}
+                    onClick={() => setActiveFile(file.path)}
+                    role="button"
+                    tabIndex={0}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') setActiveFile(file.path);
+                    }}
+                  >
+                    <span className="file-tree__icon">{getFileIcon(file.path)}</span>
+                    <span className="file-tree__name">{file.path}</span>
+                  </div>
+                ))
+              )}
+            </div>
+          </aside>
+        )}
 
         {/* Monaco Editor */}
         <div className="editor-content__main">

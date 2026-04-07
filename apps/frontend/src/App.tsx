@@ -1,24 +1,22 @@
+import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { Header } from './components/layout/Header';
-import { ChatPanel } from './components/chat/ChatPanel';
-import { EditorArea } from './components/editor/EditorArea';
-import { PreviewPanel } from './components/preview/PreviewPanel';
-import { useAppStore } from './store/appStore';
+import { HomePage } from './pages/HomePage';
+import { ChatPage } from './pages/ChatPage';
+import { BuilderPage } from './pages/BuilderPage';
 
 export default function App() {
-  const activeView = useAppStore((s) => s.activeView);
+  const location = useLocation();
+  const isHome = location.pathname === '/' || location.pathname === '/chat';
 
   return (
     <>
-      <Header />
-      <main className="main-layout">
-        <ChatPanel />
-        {activeView === 'code' || activeView === 'split' ? (
-          <EditorArea />
-        ) : null}
-        {activeView === 'preview' || activeView === 'split' ? (
-          <PreviewPanel />
-        ) : null}
-      </main>
+      {!isHome && <Header />}
+      <Routes>
+        <Route path="/" element={<HomePage />} />
+        <Route path="/chat" element={<ChatPage />} />
+        <Route path="/build" element={<BuilderPage />} />
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
     </>
   );
 }

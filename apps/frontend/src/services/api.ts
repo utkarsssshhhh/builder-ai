@@ -81,6 +81,80 @@ export async function streamChat(
 }
 
 /**
+ * Streams a conversational chat response (no code generation).
+ * Uses the /api/chat/conversation endpoint.
+ */
+export async function streamConversation(
+  messages: Array<{ role: 'user' | 'assistant'; content: string }>,
+  callbacks: StreamCallbacks
+): Promise<void> {
+  const response = await fetch(`${API_BASE}/chat/conversation`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ messages }),
+  });
+
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({ message: 'Request failed' }));
+    callbacks.onError(errorData.message ?? `HTTP ${response.status}`);
+    return;
+  }
+
+  const reader = response.body?.getReader();
+  if (!reader) {
+    callbacks.onError('No response stream available');
+    return;
+  }
+
+  const decoder = new TextDecoder();
+  let fullText = '';
+  let buffer = '';
+
+  try {
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+
+      buffer += decoder.decode(value, { stream: true });
+      const lines = buffer.split('\n');
+      buffer = lines.pop() ?? '';
+
+      for (const line of lines) {
+        if (!line.startsWith('data: ')) continue;
+
+        const jsonStr = line.slice(6).trim();
+        if (!jsonStr) continue;
+
+        try {
+          const event = JSON.parse(jsonStr) as {
+            type: string;
+            content?: string;
+            error?: string;
+          };
+
+          if (event.type === 'text_delta' && event.content) {
+            fullText += event.content;
+            callbacks.onChunk(event.content);
+          } else if (event.type === 'done') {
+            callbacks.onDone(fullText);
+            return;
+          } else if (event.type === 'error') {
+            callbacks.onError(event.error ?? 'Unknown streaming error');
+            return;
+          }
+        } catch {
+          // Skip malformed JSON lines
+        }
+      }
+    }
+
+    callbacks.onDone(fullText);
+  } catch (error) {
+    callbacks.onError(error instanceof Error ? error.message : 'Stream interrupted');
+  }
+}
+
+/**
  * Parses the AI response text to extract file blocks.
  *
  * Expected format:

@@ -46,7 +46,7 @@ export const useAppStore = create<AppState>((set, get) => ({
   files: [],
   activeFilePath: null,
   openTabs: [],
-  activeView: 'split',
+  activeView: 'code',
 
   // ─── Chat Actions ───────────────────────────────────────────────────────
   addUserMessage: (content: string) => {
