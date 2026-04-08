@@ -17,7 +17,7 @@ const PORT = parseInt(process.env['PORT'] ?? '3001', 10);
 //   credentials: true
 // }));
 
-const cors = require('cors');
+
 
 // 1. Setup CORS
 app.use(cors({
